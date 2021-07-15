@@ -1,7 +1,11 @@
 #if defined(LV_LVGL_H_INCLUDE_SIMPLE)
 #include "lvgl.h"
 #else
-#include "../../lvgl.h"
+#ifdef WIN32
+#include "../../../../lvgl/lvgl.h"
+#else
+#include "../../lvgl/lvgl.h"
+#endif
 #endif
 
 

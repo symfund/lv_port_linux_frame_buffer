@@ -71,8 +71,13 @@
 uint32_t custom_tick_get(void);
 #define LV_TICK_CUSTOM     1
 #if LV_TICK_CUSTOM
+#ifdef WIN32
+#define LV_TICK_CUSTOM_INCLUDE <Windows.h> /*Header for the system time function*/
+#define LV_TICK_CUSTOM_SYS_TIME_EXPR (GetTickCount()) /*Expression evaluating to current system time in ms*/
+#else
 #define LV_TICK_CUSTOM_INCLUDE  <stdint.h>         /*Header for the system time function*/
 #define LV_TICK_CUSTOM_SYS_TIME_EXPR (custom_tick_get())     /*Expression evaluating to current system time in ms*/
+#endif
 #endif   /*LV_TICK_CUSTOM*/
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
