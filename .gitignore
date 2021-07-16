@@ -1,3 +1,13 @@
 
 *.obj
 *.bak
+*.tlog
+*.pdb
+*.exp
+*.ipch
+*.db
+*.log
+*.ilk
+*.idb
+*.iobj
+*.ipdb

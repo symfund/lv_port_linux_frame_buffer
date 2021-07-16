@@ -30,6 +30,11 @@
     #include "../gpu/lv_gpu_stm32_dma2d.h"
 #endif
 
+#if LV_USE_GPU_NXP_PXP && LV_USE_GPU_NXP_PXP_AUTO_INIT
+    #include "../gpu/lv_gpu_nxp_pxp.h"
+    #include "../gpu/lv_gpu_nxp_pxp_osa.h"
+#endif
+
 /*********************
  *      DEFINES
  *********************/
@@ -103,6 +108,13 @@ void lv_init(void)
 #if LV_USE_GPU_STM32_DMA2D
     /*Initialize DMA2D GPU*/
     lv_gpu_stm32_dma2d_init();
+#endif
+
+#if LV_USE_GPU_NXP_PXP && LV_USE_GPU_NXP_PXP_AUTO_INIT
+    if(lv_gpu_nxp_pxp_init(&pxp_default_cfg) != LV_RES_OK) {
+        LV_LOG_ERROR("PXP init error. STOP.\n");
+        for(; ;) ;
+    }
 #endif
 
     _lv_obj_style_init();
@@ -647,8 +659,12 @@ static void lv_obj_event(const lv_obj_class_t * class_p, lv_event_t * e)
             else if(c == LV_KEY_LEFT || c == LV_KEY_DOWN) {
                 lv_obj_clear_state(obj, LV_STATE_CHECKED);
             }
-            lv_res_t res = lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
-            if(res != LV_RES_OK) return;
+
+            /*With Enter LV_EVENT_RELEASED will send VALUE_CHANGE event*/
+            if(c != LV_KEY_ENTER) {
+                lv_res_t res = lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+                if(res != LV_RES_OK) return;
+            }
         }
     }
     else if(code == LV_EVENT_FOCUSED) {

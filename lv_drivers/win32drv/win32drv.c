@@ -72,6 +72,50 @@ static HDC lv_win32_create_frame_buffer(
 static BOOL lv_win32_enable_child_window_dpi_message(
     _In_ HWND WindowHandle);
 
+/**
+ * @brief Registers a window as being touch-capable.
+ * @param hWnd The handle of the window being registered.
+ * @param ulFlags A set of bit flags that specify optional modifications.
+ * @return If the function succeeds, the return value is nonzero. If the
+ *         function fails, the return value is zero.
+ * @remark For more information, see RegisterTouchWindow.
+*/
+static BOOL lv_win32_register_touch_window(
+    HWND hWnd,
+    ULONG ulFlags);
+
+/**
+ * @brief Retrieves detailed information about touch inputs associated with a
+ *        particular touch input handle.
+ * @param hTouchInput The touch input handle received in the LPARAM of a touch
+ *                    message.
+ * @param cInputs The number of structures in the pInputs array.
+ * @param pInputs A pointer to an array of TOUCHINPUT structures to receive
+ *                information about the touch points associated with the
+ *                specified touch input handle.
+ * @param cbSize The size, in bytes, of a single TOUCHINPUT structure.
+ * @return If the function succeeds, the return value is nonzero. If the
+ *         function fails, the return value is zero.
+ * @remark For more information, see GetTouchInputInfo.
+*/
+static BOOL lv_win32_get_touch_input_info(
+    HTOUCHINPUT hTouchInput,
+    UINT cInputs,
+    PTOUCHINPUT pInputs,
+    int cbSize);
+
+/**
+ * @brief Closes a touch input handle, frees process memory associated with it,
+          and invalidates the handle.
+ * @param hTouchInput The touch input handle received in the LPARAM of a touch
+ *                    message.
+ * @return If the function succeeds, the return value is nonzero. If the
+ *         function fails, the return value is zero.
+ * @remark For more information, see CloseTouchInputHandle.
+*/
+static BOOL lv_win32_close_touch_input_handle(
+    HTOUCHINPUT hTouchInput);
+
 static void lv_win32_display_driver_flush_callback(
     lv_disp_drv_t* disp_drv,
     const lv_area_t* area,
@@ -99,13 +143,8 @@ static LRESULT CALLBACK lv_win32_window_message_callback(
     WPARAM wParam,
     LPARAM lParam);
 
-#if LV_VERSION_CHECK(8, 0, 0)
 static void lv_win32_message_handler(
     lv_timer_t* param);
-#else
-static void lv_win32_message_handler(
-    lv_task_t* param);
-#endif
 
 /**********************
  *  GLOBAL VARIABLES
@@ -209,11 +248,9 @@ EXTERN_C bool lv_win32_init(
         return false;
     }
 
-#if LV_VERSION_CHECK(8, 0, 0)
+    lv_win32_register_touch_window(g_window_handle, 0);
+
     lv_timer_create(lv_win32_message_handler, 0, NULL);
-#else
-    lv_task_create(lv_win32_message_handler, 0, LV_TASK_PRIO_HIGHEST, NULL);
-#endif
 
     lv_win32_enable_child_window_dpi_message(g_window_handle);
 
@@ -227,7 +264,6 @@ EXTERN_C bool lv_win32_init(
     DeleteDC(g_buffer_dc_handle);
     g_buffer_dc_handle = hNewBufferDC;
 
-#if LV_VERSION_CHECK(8, 0, 0)
     static lv_disp_draw_buf_t disp_buf;
     lv_disp_draw_buf_init(
         &disp_buf,
@@ -261,41 +297,6 @@ EXTERN_C bool lv_win32_init(
     enc_drv.type = LV_INDEV_TYPE_ENCODER;
     enc_drv.read_cb = lv_win32_mousewheel_driver_read_callback;
     lv_indev_drv_register(&enc_drv);
-#else
-    static lv_disp_buf_t disp_buf;
-    lv_disp_buf_init(
-        &disp_buf,
-        (lv_color_t*)malloc(hor_res * ver_res * sizeof(lv_color_t)),
-        NULL,
-        hor_res * ver_res);
-
-    lv_disp_drv_t disp_drv;
-    lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = hor_res;
-    disp_drv.ver_res = ver_res;
-    disp_drv.flush_cb = lv_win32_display_driver_flush_callback;
-    disp_drv.buffer = &disp_buf;
-    disp_drv.rounder_cb = lv_win32_display_driver_rounder_callback;
-    g_display = lv_disp_drv_register(&disp_drv);
-
-    lv_indev_drv_t indev_drv;
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = lv_win32_mouse_driver_read_callback;
-    lv_indev_drv_register(&indev_drv);
-
-    lv_indev_drv_t kb_drv;
-    lv_indev_drv_init(&kb_drv);
-    kb_drv.type = LV_INDEV_TYPE_KEYPAD;
-    kb_drv.read_cb = lv_win32_keyboard_driver_read_callback;
-    lv_indev_drv_register(&kb_drv);
-
-    lv_indev_drv_t enc_drv;
-    lv_indev_drv_init(&enc_drv);
-    enc_drv.type = LV_INDEV_TYPE_ENCODER;
-    enc_drv.read_cb = lv_win32_mousewheel_driver_read_callback;
-    lv_indev_drv_register(&enc_drv);
-#endif
 
     ShowWindow(g_window_handle, show_window_mode);
     UpdateWindow(g_window_handle);
@@ -396,6 +397,73 @@ static BOOL lv_win32_enable_child_window_dpi_message(
     }
 
     return pFunction(WindowHandle, TRUE);
+}
+
+static BOOL lv_win32_register_touch_window(
+    HWND hWnd,
+    ULONG ulFlags)
+{
+    HMODULE ModuleHandle = GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return FALSE;
+    }
+
+    typedef BOOL(WINAPI* FunctionType)(HWND, ULONG);
+
+    FunctionType pFunction = (FunctionType)(
+        GetProcAddress(ModuleHandle, "RegisterTouchWindow"));
+    if (!pFunction)
+    {
+        return FALSE;
+    }
+
+    return pFunction(hWnd, ulFlags);
+}
+
+static BOOL lv_win32_get_touch_input_info(
+    HTOUCHINPUT hTouchInput,
+    UINT cInputs,
+    PTOUCHINPUT pInputs,
+    int cbSize)
+{
+    HMODULE ModuleHandle = GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return FALSE;
+    }
+
+    typedef BOOL(WINAPI* FunctionType)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
+
+    FunctionType pFunction = (FunctionType)(
+        GetProcAddress(ModuleHandle, "GetTouchInputInfo"));
+    if (!pFunction)
+    {
+        return FALSE;
+    }
+
+    return pFunction(hTouchInput, cInputs, pInputs, cbSize);
+}
+
+static BOOL lv_win32_close_touch_input_handle(
+    HTOUCHINPUT hTouchInput)
+{
+    HMODULE ModuleHandle = GetModuleHandleW(L"user32.dll");
+    if (!ModuleHandle)
+    {
+        return FALSE;
+    }
+
+    typedef BOOL(WINAPI* FunctionType)(HTOUCHINPUT);
+
+    FunctionType pFunction = (FunctionType)(
+        GetProcAddress(ModuleHandle, "CloseTouchInputHandle"));
+    if (!pFunction)
+    {
+        return FALSE;
+    }
+
+    return pFunction(hTouchInput);
 }
 
 static void lv_win32_display_driver_flush_callback(
@@ -571,6 +639,48 @@ static LRESULT CALLBACK lv_win32_window_message_callback(
         g_mousewheel_value = -(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
         break;
     }
+    case WM_TOUCH:
+    {
+        UINT cInputs = LOWORD(wParam);
+        HTOUCHINPUT hTouchInput = (HTOUCHINPUT)(lParam);
+
+        PTOUCHINPUT pInputs = malloc(cInputs * sizeof(TOUCHINPUT));
+        if (pInputs)
+        {
+            if (lv_win32_get_touch_input_info(
+                hTouchInput,
+                cInputs,
+                pInputs,
+                sizeof(TOUCHINPUT)))
+            {
+                for (UINT i = 0; i < cInputs; ++i)
+                {
+                    POINT Point;
+                    Point.x = TOUCH_COORD_TO_PIXEL(pInputs[i].x);
+                    Point.y = TOUCH_COORD_TO_PIXEL(pInputs[i].y);
+                    if (!ScreenToClient(hWnd, &Point))
+                    {
+                        continue;
+                    }
+
+                    uint16_t x = (uint16_t)(Point.x & 0xffff);
+                    uint16_t y = (uint16_t)(Point.y & 0xffff);
+
+                    DWORD MousePressedMask =
+                        TOUCHEVENTF_MOVE | TOUCHEVENTF_DOWN;
+
+                    g_mouse_value = (y << 16) | x;
+                    g_mouse_pressed = (pInputs[i].dwFlags & MousePressedMask);
+                }
+            }
+
+            free(pInputs);
+        }
+
+        lv_win32_close_touch_input_handle(hTouchInput);
+
+        break;
+    }
     case WM_DPICHANGED:
     {
         LPRECT SuggestedRect = (LPRECT)lParam;
@@ -587,13 +697,8 @@ static LRESULT CALLBACK lv_win32_window_message_callback(
         RECT ClientRect;
         GetClientRect(hWnd, &ClientRect);
 
-#if LV_VERSION_CHECK(8, 0, 0)
         int WindowWidth = g_display->driver->hor_res;
         int WindowHeight = g_display->driver->ver_res;
-#else
-        int WindowWidth = g_display->driver.hor_res;
-        int WindowHeight = g_display->driver.ver_res;
-#endif
 
         SetWindowPos(
             hWnd,
@@ -616,13 +721,8 @@ static LRESULT CALLBACK lv_win32_window_message_callback(
     return 0;
 }
 
-#if LV_VERSION_CHECK(8, 0, 0)
 static void lv_win32_message_handler(
     lv_timer_t* param)
-#else
-static void lv_win32_message_handler(
-    lv_task_t* param)
-#endif
 {
     UNREFERENCED_PARAMETER(param);
 
