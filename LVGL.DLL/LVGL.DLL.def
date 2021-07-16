@@ -1,0 +1,10 @@
+﻿; Declares the module parameters for the DLL.
+
+LIBRARY LVGL
+
+EXPORTS
+    ; Explicit exports can go here
+    LVGL_DllMain                 @1
+    LVGL_SetLCDHandle            @2
+    LVGL_GetLCDWidth             @3
+    LVGL_GetLCDHeight            @4
