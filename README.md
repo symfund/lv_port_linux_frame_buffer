@@ -6,3 +6,7 @@
 
 # PC Win32 Simulator
 ![LVGL Running on PC](docs/images/Screenshot.png)
+
+# Animation
+This is GIF animation, please wait patiently!
+![LVGL Animation](docs/images/lvgl.gif)
