@@ -8,5 +8,5 @@
 ![LVGL Running on PC](docs/images/Screenshot.png)
 
 # Animation
-This is GIF animation, please wait patiently!
+This is a GIF animation, please wait patiently!
 ![LVGL Animation](docs/images/lvgl.gif)
