@@ -4,7 +4,7 @@
 #ifdef WIN32
 #include "../../../../lvgl/lvgl.h"
 #else
-#include "../../lvgl/lvgl.h"
+#include "../../lvgl.h"
 #endif
 #endif
 
