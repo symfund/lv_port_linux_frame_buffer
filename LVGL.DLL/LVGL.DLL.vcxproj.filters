@@ -109,12 +109,6 @@
     <Filter Include="api">
       <UniqueIdentifier>{adeacd20-d3e3-4163-a90d-959d1cbec642}</UniqueIdentifier>
     </Filter>
-    <Filter Include="drivers">
-      <UniqueIdentifier>{24b3e819-72bf-4d41-9cc6-4f8939eeb235}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="drivers\win32drv">
-      <UniqueIdentifier>{2d01acb7-473c-4c7b-809e-6ab9fab3bcfa}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lvgl\src\core\lv_disp.c">
@@ -500,9 +494,6 @@
     </ClCompile>
     <ClCompile Include="LVGL.DLL.c">
       <Filter>api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lv_drivers\win32drv\win32drv.c">
-      <Filter>drivers\win32drv</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

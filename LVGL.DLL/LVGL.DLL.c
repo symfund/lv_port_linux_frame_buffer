@@ -16,8 +16,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // LCD Dimension
-static int g_lcd_width = 640;
-static int g_lcd_height = 360;
+static int g_lcd_width = 720;
+static int g_lcd_height = 405;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,13 @@ LVGLAPI int CALLBACK LVGL_GetLCDWidth(void)
 LVGLAPI int CALLBACK LVGL_GetLCDHeight(void)
 {
     return g_lcd_height;
+}
+
+LVGLAPI int CALLBACK LVGL_DllMain(void)
+{
+    main(0, NULL);
+
+    return 0;
 }
 
 
@@ -295,7 +302,7 @@ int main(int argc, char** argv)
 {
     lv_init();
 
-    WNDPROC prevWndProc = (WNDPROC)SetWindowLongPtr(g_simulator_wndhandle, GWL_WNDPROC, (LONG_PTR)&lv_win32_window_message_callback);
+    WNDPROC prevWndProc = (WNDPROC)SetWindowLongPtr(g_simulator_wndhandle, GWLP_WNDPROC, (LONG_PTR)&lv_win32_window_message_callback);
 
     g_simulator_framebuffer_dc = lv_win32_create_frame_buffer(
         g_simulator_wndhandle,
@@ -570,12 +577,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
-LVGLAPI int CALLBACK LVGL_DllMain(void)
-{
-	main(0, NULL);
-
-	return 0;
-}
-
-

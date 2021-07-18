@@ -22,4 +22,4 @@ LVGLAPI int  CALLBACK  LVGL_GetLCDHeight(void);
 }
 #endif
 
-#endif // __NU_SIMAPI_H__
+#endif // __LVGL_API_H__
