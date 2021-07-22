@@ -6,6 +6,7 @@
 
 # PC Win32 Simulator
 ![LVGL Running on PC](docs/images/Screenshot.png)
+![portrait profile](docs/images/portrait_profile.png) ![portrait analysis](docs/images/portrait_analysis.png) ![portrait shop](docs/images/portrait_shop.png)
 
 # Animation
 This is a GIF animation, please wait patiently!
