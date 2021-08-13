@@ -1,10 +1,10 @@
 ﻿; Declares the module parameters for the DLL.
 
-LIBRARY LVGL
+LIBRARY HMI
 
 EXPORTS
     ; Explicit exports can go here
-    LVGL_DllMain                 @1
-    LVGL_SetLCDHandle            @2
-    LVGL_GetLCDWidth             @3
-    LVGL_GetLCDHeight            @4
+    HMI_DllMain                 @1
+    HMI_SetLCDHandle            @2
+    HMI_GetLCDWidth             @3
+    HMI_GetLCDHeight            @4

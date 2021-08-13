@@ -13,10 +13,10 @@ extern "C" {
 #   define LVGLAPI __declspec(dllimport)
 # endif
 
-LVGLAPI int  CALLBACK  LVGL_DllMain(void);
-LVGLAPI void CALLBACK  LVGL_SetLCDHandle(HWND);
-LVGLAPI int  CALLBACK  LVGL_GetLCDWidth(void);
-LVGLAPI int  CALLBACK  LVGL_GetLCDHeight(void);
+LVGLAPI int  CALLBACK  HMI_DllMain(void);
+LVGLAPI void CALLBACK  HMI_SetLCDHandle(HWND);
+LVGLAPI int  CALLBACK  HMI_GetLCDWidth(void);
+LVGLAPI int  CALLBACK  HMI_GetLCDHeight(void);
 
 #ifdef  __cplusplus
 }

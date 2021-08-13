@@ -22,8 +22,8 @@
 // 16/10 768/480
 
 
-static int g_lcd_width = 477;
-static int g_lcd_height = 848;
+static int g_lcd_width = 1024;
+static int g_lcd_height = 600;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,19 +43,30 @@ static bool volatile g_keyboard_pressed = false;
 static WPARAM volatile g_keyboard_value = 0;
 
 
-LVGLAPI void CALLBACK LVGL_SetLCDHandle(HWND wndHandle)
+LVGLAPI void CALLBACK HMI_SetLCDHandle(HWND wndHandle)
 {
     g_simulator_wndhandle = wndHandle;
 }
 
-LVGLAPI int CALLBACK LVGL_GetLCDWidth(void)
+LVGLAPI int CALLBACK HMI_GetLCDWidth(void)
 {
     return g_lcd_width;
 }
 
-LVGLAPI int CALLBACK LVGL_GetLCDHeight(void)
+LVGLAPI int CALLBACK HMI_GetLCDHeight(void)
 {
     return g_lcd_height;
+}
+
+LVGLAPI int CALLBACK HMI_DllMain(void)
+{
+#ifndef SDL2
+    main(0, NULL);
+#else
+    SDL2_main(0, NULL);
+#endif
+
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,16 +79,7 @@ LVGLAPI int CALLBACK LVGL_GetLCDHeight(void)
 #define USE_KEYBOARD    1
 #define USE_MOUSEWHEEL  1
 
-LVGLAPI int CALLBACK LVGL_DllMain(void)
-{
-#ifndef SDL2
-    main(0, NULL);
- #else
-    SDL2_main(0, NULL);
- #endif
 
-    return 0;
-}
 
 #ifdef SDL2
 
