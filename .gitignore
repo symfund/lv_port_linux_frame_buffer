@@ -11,3 +11,10 @@
 *.idb
 *.iobj
 *.ipdb
+.vs
+LVGL.DLL/Debug
+LVGL.DLL/Release
+Debug/HMI.dll
+Debug/HMI.lib
+Release/HMI.dll
+Release/HMI.lib
