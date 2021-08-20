@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include <VersionHelpers.h>
+#include "resource.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -43,22 +44,27 @@ static bool volatile g_keyboard_pressed = false;
 static WPARAM volatile g_keyboard_value = 0;
 
 
-LVGLAPI void CALLBACK HMI_SetLCDHandle(HWND wndHandle)
+HMIAPI int CALLBACK HMI_GetAppIcon(void)
+{
+    return IDI_ICON_APPLICATION;
+}
+
+HMIAPI void CALLBACK HMI_SetLCDHandle(HWND wndHandle)
 {
     g_simulator_wndhandle = wndHandle;
 }
 
-LVGLAPI int CALLBACK HMI_GetLCDWidth(void)
+HMIAPI int CALLBACK HMI_GetLCDWidth(void)
 {
     return g_lcd_width;
 }
 
-LVGLAPI int CALLBACK HMI_GetLCDHeight(void)
+HMIAPI int CALLBACK HMI_GetLCDHeight(void)
 {
     return g_lcd_height;
 }
 
-LVGLAPI int CALLBACK HMI_DllMain(void)
+HMIAPI int CALLBACK HMI_DllMain(void)
 {
 #ifndef SDL2
     main(0, NULL);
@@ -822,6 +828,11 @@ static HDC lv_win32_create_frame_buffer(
     return hFrameBufferDC;
 }
 
+#define HIDE_CURSOR 0
+
+#if HIDE_CURSOR
+BOOL g_fMouseTracking = FALSE;
+#endif
 
 static LRESULT CALLBACK lv_win32_window_message_callback(
     HWND   hWnd,
@@ -831,7 +842,43 @@ static LRESULT CALLBACK lv_win32_window_message_callback(
 {
     switch (uMsg)
     {
+#if HIDE_CURSOR
+    case WM_MOUSEHOVER: 
+    {
+        if (!g_fMouseTracking) 
+        {
+            TRACKMOUSEEVENT tme;
+            tme.cbSize       = sizeof(TRACKMOUSEEVENT);
+            tme.dwFlags      = TME_LEAVE;
+            tme.hwndTrack    = hWnd;
+            g_fMouseTracking = TrackMouseEvent(&tme);
+            ShowCursor(FALSE);
+        } 
+    }
+        
+        break;
+
+        case WM_MOUSELEAVE: 
+            {
+        g_fMouseTracking = FALSE;
+            ShowCursor(TRUE);
+        }
+            
+            
+            break;
+    #endif
+
     case WM_MOUSEMOVE:
+        #if HIDE_CURSOR
+            if (!g_fMouseTracking) {
+                TRACKMOUSEEVENT tme;
+                tme.cbSize       = sizeof(TRACKMOUSEEVENT);
+                tme.dwFlags      = TME_LEAVE;
+                tme.hwndTrack    = hWnd;
+                g_fMouseTracking = TrackMouseEvent(&tme);
+                ShowCursor(FALSE);
+            } 
+            #endif
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
     case WM_MBUTTONDOWN:

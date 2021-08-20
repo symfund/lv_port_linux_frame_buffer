@@ -8,3 +8,4 @@ EXPORTS
     HMI_SetLCDHandle            @2
     HMI_GetLCDWidth             @3
     HMI_GetLCDHeight            @4
+    HMI_GetAppIcon              @5

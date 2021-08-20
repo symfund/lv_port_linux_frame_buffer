@@ -146,6 +146,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LVGL_API.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LVGL.DLL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\app.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

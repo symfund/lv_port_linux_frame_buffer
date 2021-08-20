@@ -8,15 +8,16 @@ extern "C" {
 #define CALLBACK __stdcall
 
 # if defined (_WINDLL)
-#   define LVGLAPI __declspec(dllexport)
+#   define HMIAPI __declspec(dllexport)
 # else
-#   define LVGLAPI __declspec(dllimport)
+#   define HMIAPI __declspec(dllimport)
 # endif
 
-LVGLAPI int  CALLBACK  HMI_DllMain(void);
-LVGLAPI void CALLBACK  HMI_SetLCDHandle(HWND);
-LVGLAPI int  CALLBACK  HMI_GetLCDWidth(void);
-LVGLAPI int  CALLBACK  HMI_GetLCDHeight(void);
+HMIAPI int CALLBACK HMI_DllMain(void);
+HMIAPI void CALLBACK HMI_SetLCDHandle(HWND);
+HMIAPI int CALLBACK HMI_GetLCDWidth(void);
+HMIAPI int CALLBACK HMI_GetLCDHeight(void);
+HMIAPI int CALLBACK HMI_GetAppIcon(void);
 
 #ifdef  __cplusplus
 }
