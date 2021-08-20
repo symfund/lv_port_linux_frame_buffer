@@ -212,7 +212,7 @@
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>LVGL.DLL.def</ModuleDefinitionFile>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../SDL2/lib/x86</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -237,7 +237,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>LVGL.DLL.def</ModuleDefinitionFile>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../SDL2/lib/x86</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
