@@ -18,3 +18,4 @@ Debug/HMI.dll
 Debug/HMI.lib
 Release/HMI.dll
 Release/HMI.lib
+*.APS
