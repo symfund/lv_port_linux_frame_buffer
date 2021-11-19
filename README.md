@@ -1,3 +1,7 @@
+LittleVGL for N9H30 RT-Thread
+https://github.com/wosayttn/LittlevGL2RTT
+
+
 # Cross compiling LVGL for framebuffer Linux
 Suppose that the toolchain is installed in **/opt/oecore-x86_64**. 
 Execute the following command to setup build environment.
