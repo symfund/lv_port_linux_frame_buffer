@@ -1,13 +1,4 @@
-#if defined(LV_LVGL_H_INCLUDE_SIMPLE)
-#include "lvgl.h"
-#else
-#ifdef WIN32
-#include "../../../../lvgl/lvgl.h"
-#else
-#include "../../lvgl.h"
-#endif
-#endif
-
+#include "../../lv_demo.h"
 
 #ifndef LV_ATTRIBUTE_MEM_ALIGN
 #define LV_ATTRIBUTE_MEM_ALIGN

@@ -184,7 +184,7 @@ void _lv_disp_refr_timer(lv_timer_t * tmr)
     TRACE_REFR("begin");
 
     uint32_t start = lv_tick_get();
-    uint32_t elaps = 0;
+    volatile uint32_t elaps = 0;
 
     disp_refr = tmr->user_data;
 
@@ -235,6 +235,10 @@ void _lv_disp_refr_timer(lv_timer_t * tmr)
 
     lv_mem_buf_free_all();
     _lv_font_clean_up_fmt_txt();
+
+#if LV_DRAW_COMPLEX
+    _lv_draw_mask_cleanup();
+#endif
 
 #if LV_USE_PERF_MONITOR && LV_USE_LABEL
     static lv_obj_t * perf_label = NULL;
@@ -584,8 +588,9 @@ static lv_obj_t * lv_refr_get_top_obj(const lv_area_t * area_p, lv_obj_t * obj)
         if(info.res == LV_COVER_RES_MASKED) return NULL;
 
         uint32_t i;
-        for(i = 0; i < lv_obj_get_child_cnt(obj); i++) {
-            lv_obj_t * child = lv_obj_get_child(obj, i);
+        uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+        for(i = 0; i < child_cnt; i++) {
+            lv_obj_t * child = obj->spec_attr->children[i];
             found_p = lv_refr_get_top_obj(area_p, child);
 
             /*If a children is ok then break*/
@@ -631,8 +636,9 @@ static void lv_refr_obj_and_children(lv_obj_t * top_p, const lv_area_t * mask_p)
     while(par != NULL) {
         bool go = false;
         uint32_t i;
-        for(i = 0; i < lv_obj_get_child_cnt(par); i++) {
-            lv_obj_t * child = lv_obj_get_child(par, i);
+        uint32_t child_cnt = lv_obj_get_child_cnt(par);
+        for(i = 0; i < child_cnt; i++) {
+            lv_obj_t * child = par->spec_attr->children[i];
             if(!go) {
                 if(child == border_p) go = true;
             } else {
@@ -703,8 +709,9 @@ static void lv_refr_obj(lv_obj_t * obj, const lv_area_t * mask_ori_p)
             lv_area_t mask_child; /*Mask from obj and its child*/
             lv_area_t child_area;
             uint32_t i;
-            for(i = 0; i < lv_obj_get_child_cnt(obj); i++) {
-                lv_obj_t * child = lv_obj_get_child(obj, i);
+            uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+            for(i = 0; i < child_cnt; i++) {
+                lv_obj_t * child = obj->spec_attr->children[i];
                 lv_obj_get_coords(child, &child_area);
                 ext_size = _lv_obj_get_ext_draw_size(child);
                 child_area.x1 -= ext_size;
@@ -842,7 +849,7 @@ static void draw_buf_rotate(lv_area_t *area, lv_color_t *color_p) {
             area->y1 = area->x1;
             area->y2 = area->y1 + area_w - 1;
         }
-        draw_buf->flushing = 0;
+
         /*Rotate the screen in chunks, flushing after each one*/
         lv_coord_t row = 0;
         while(row < area_h) {
@@ -875,6 +882,15 @@ static void draw_buf_rotate(lv_area_t *area, lv_color_t *color_p) {
                     area->x1 = area->x2 - height + 1;
                 }
             }
+
+            /* The original part (chunk of the current area) were split into more parts here.
+             * Set the original last_part flag on the last part of rotation. */
+            if(row + height >= area_h && draw_buf->last_area && draw_buf->last_part) {
+                draw_buf->flushing_last = 1;
+            } else {
+                draw_buf->flushing_last = 0;
+            }
+
             /*Flush the completed area to the display*/
             call_flush_cb(drv, area, rot_buf == NULL ? color_p : rot_buf);
             /*FIXME: Rotation forces legacy behavior where rendering and flushing are done serially*/

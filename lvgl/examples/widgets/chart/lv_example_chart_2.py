@@ -1,15 +1,15 @@
 def draw_event_cb(e):
 
-    obj = lv.obj.__cast__(e.get_target())
+    obj = e.get_target()
 
     # Add the faded area before the lines are drawn
-    dsc = lv.obj_draw_part_dsc_t.cast(e.get_param())
+    dsc = lv.obj_draw_part_dsc_t.__cast__(e.get_param())
     if dsc.part != lv.PART.ITEMS:
         return
     if not dsc.p1 or not dsc.p2:
         return
 
-    # Add  a line mask that keeps the area below the line
+    # Add a line mask that keeps the area below the line
     line_mask_param = lv.draw_mask_line_param_t()
     line_mask_param.points_init(dsc.p1.x, dsc.p1.y, dsc.p2.x, dsc.p2.y, lv.DRAW_MASK_LINE_SIDE.BOTTOM)
     # line_mask_id = line_mask_param.draw_mask_add(None)

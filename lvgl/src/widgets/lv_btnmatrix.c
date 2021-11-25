@@ -361,7 +361,7 @@ static void lv_btnmatrix_constructor(const lv_obj_class_t * class_p, lv_obj_t * 
 
     lv_btnmatrix_set_map(obj, lv_btnmatrix_def_map);
 
-    LV_TRACE_OBJ_CREATE("finshed");
+    LV_TRACE_OBJ_CREATE("finished");
 }
 
 static void lv_btnmatrix_destructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
@@ -373,7 +373,7 @@ static void lv_btnmatrix_destructor(const lv_obj_class_t * class_p, lv_obj_t * o
     lv_mem_free(btnm->ctrl_bits);
     btnm->button_areas = NULL;
     btnm->ctrl_bits = NULL;
-    LV_TRACE_OBJ_CREATE("finshed");
+    LV_TRACE_OBJ_CREATE("finished");
 }
 
 static void lv_btnmatrix_event(const lv_obj_class_t * class_p, lv_event_t * e)
@@ -670,11 +670,13 @@ static void draw_main(lv_event_t * e)
     char * txt_ap = lv_mem_buf_get(txt_ap_size);
 #endif
 
-    lv_obj_draw_part_dsc_t dsc;
-    lv_obj_draw_dsc_init(&dsc, clip_area);
-    dsc.part = LV_PART_ITEMS;
-    dsc.rect_dsc = &draw_rect_dsc_act;
-    dsc.label_dsc = &draw_label_dsc_act;
+    lv_obj_draw_part_dsc_t part_draw_dsc;
+    lv_obj_draw_dsc_init(&part_draw_dsc, clip_area);
+    part_draw_dsc.part = LV_PART_ITEMS;
+    part_draw_dsc.class_p = MY_CLASS;
+    part_draw_dsc.type = LV_BTNMATRIX_DRAW_PART_BTN;
+    part_draw_dsc.rect_dsc = &draw_rect_dsc_act;
+    part_draw_dsc.label_dsc = &draw_label_dsc_act;
 
     for(btn_i = 0; btn_i < btnm->btn_cnt; btn_i++, txt_i++) {
         /*Search the next valid text in the map*/
@@ -725,9 +727,9 @@ static void draw_main(lv_event_t * e)
         else draw_label_dsc_act.flag &= ~LV_TEXT_FLAG_RECOLOR;
 
 
-        dsc.draw_area = &btn_area;
-        dsc.id = btn_i;
-        lv_event_send(obj,LV_EVENT_DRAW_PART_BEGIN, &dsc);
+        part_draw_dsc.draw_area = &btn_area;
+        part_draw_dsc.id = btn_i;
+        lv_event_send(obj,LV_EVENT_DRAW_PART_BEGIN, &part_draw_dsc);
 
         /*Remove borders on the edges if `LV_BORDER_SIDE_INTERNAL`*/
         if(draw_rect_dsc_act.border_side & LV_BORDER_SIDE_INTERNAL) {
@@ -767,7 +769,7 @@ static void draw_main(lv_event_t * e)
         /*Draw the text*/
         lv_draw_label(&btn_area, clip_area, &draw_label_dsc_act, txt, NULL);
 
-        lv_event_send(obj,LV_EVENT_DRAW_PART_END, &dsc);
+        lv_event_send(obj,LV_EVENT_DRAW_PART_END, &part_draw_dsc);
     }
 
     obj->skip_trans = 0;
@@ -938,9 +940,14 @@ static void invalidate_button_area(const lv_obj_t * obj, uint16_t btn_idx)
     lv_obj_get_coords(obj, &obj_area);
 
     /*The buttons might have outline and shadow so make the invalidation larger with the gaps between the buttons.
-     *It assumes that the outline or shadow is smaller then the gaps*/
+     *It assumes that the outline or shadow is smaller than the gaps*/
     lv_coord_t row_gap = lv_obj_get_style_pad_row(obj, LV_PART_MAIN);
     lv_coord_t col_gap = lv_obj_get_style_pad_column(obj, LV_PART_MAIN);
+
+    /*Be sure to have a minimal extra space if row/col_gap is small*/
+    lv_coord_t dpi = lv_disp_get_dpi(lv_obj_get_disp(obj));
+    row_gap = LV_MAX(row_gap, dpi / 10);
+    col_gap = LV_MAX(col_gap, dpi / 10);
 
     /*Convert relative coordinates to absolute*/
     btn_area.x1 += obj_area.x1 - row_gap;

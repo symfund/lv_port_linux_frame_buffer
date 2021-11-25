@@ -28,10 +28,12 @@ The parts of the Spinbox are identical to the [Text area](/widgets/core/textarea
 `separator_position` is the number of digits before the decimal point. If 0, no decimal point is displayed.
 
 ### Rollover
-`lv_spinbox_set_rollover(spinbox, true/false)` enables/disabled rollover mode. If either the minimum or maximum value is reached with rollover enabled, the value will change to the other limit. If rollover is disabled the value will be remain at the minimum or maximum value. 
+`lv_spinbox_set_rollover(spinbox, true/false)` enables/disabled rollover mode. If either the minimum or maximum value is reached with rollover enabled, the value will change to the other limit. If rollover is disabled the value will remain at the minimum or maximum value. 
 
 ## Events
 - `LV_EVENT_VALUE_CHANGED` Sent when the value has changed.
+
+See the events of the [Text area](/widgets/core/textarea) too.
 
 Learn more about [Events](/overview/event).
 

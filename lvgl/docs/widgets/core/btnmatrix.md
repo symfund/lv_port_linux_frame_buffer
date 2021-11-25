@@ -42,13 +42,13 @@ In addition to the width, each button can be customized with the following param
 - `LV_BTNMATRIX_CTRL_CUSTOM_1` Custom free to use flag
 - `LV_BTNMATRIX_CTRL_CUSTOM_2` Custom free to use flag
 
-By default all flags are disabled.
+By default, all flags are disabled.
 
 To set or clear a button's control attribute, use `lv_btnmatrix_set_btn_ctrl(btnm, btn_id, LV_BTNM_CTRL_...)` and 
 `lv_btnmatrix_clear_btn_ctrl(btnm, btn_id, LV_BTNMATRIX_CTRL_...)` respectively. More `LV_BTNM_CTRL_...` values can be OR-ed
 
-To set/clear the same control attribute for all buttons of a button matrix, use `lv_btnmatrix_set_btn_ctrl_all(btnm, btn_id, LV_BTNM_CTRL_...)` and 
-`lv_btnmatrix_clear_btn_ctrl_all(btnm, btn_id, LV_BTNMATRIX_CTRL_...)`.
+To set/clear the same control attribute for all buttons of a button matrix, use `lv_btnmatrix_set_btn_ctrl_all(btnm, LV_BTNM_CTRL_...)` and 
+`lv_btnmatrix_clear_btn_ctrl_all(btnm, LV_BTNMATRIX_CTRL_...)`.
 
 The set a control map for a button matrix (similarly to the map for the text), use `lv_btnmatrix_set_ctrl_map(btnm, ctrl_map)`.
 An element of `ctrl_map` should look like `ctrl_map[0] = width | LV_BTNM_CTRL_NO_REPEAT |  LV_BTNM_CTRL_CHECHKABLE`. 
@@ -59,9 +59,14 @@ The "One check" feature can be enabled with `lv_btnmatrix_set_one_check(btnm, tr
 
 ## Events
 - `LV_EVENT_VALUE_CHANGED` Sent when a button is pressed/released or repeated after long press. The event parameter is set to the ID of the pressed/released button.
-- `LV_EVENT_DRAW_PART_BEGIN` and `LV_EVENT_DRAW_PART_END` are sent for both the main and the items (buttons) parts to allow hooking the drawing. 
-For more detail on the main part see the [Base object](/widgets/obj#events)'s documentation.
-For the buttons the following fields are used: `clip_area`, `draw_area`, `rect_dsc`, `rect_dsc`, `part`, `id` (index of the button being drawn). 
+- `LV_EVENT_DRAW_PART_BEGIN` and `LV_EVENT_DRAW_PART_END` are sent for the following types:
+    - `LV_BTNMATRIX_DRAW_PART_BTN` The individual buttons.
+        - `part`: `LV_PART_ITEMS`
+        - `id`:index of the button being drawn 
+        - `draw_area`: the area of teh button
+        - `rect_dsc`
+
+See the events of the [Base object](/widgets/obj) too.
 
 `lv_btnmatrix_get_selected_btn(btnm)` returns the index of the most recently released or focused button or `LV_BTNMATRIX_BTN_NONE` if no such button.
 

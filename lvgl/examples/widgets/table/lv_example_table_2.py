@@ -4,8 +4,8 @@ import gc
 ITEM_CNT = 200
 
 def draw_event_cb(e):
-    obj = lv.table.__cast__(e.get_target())
-    dsc = lv.obj_draw_part_dsc_t.cast(e.get_param())
+    obj = e.get_target()
+    dsc = lv.obj_draw_part_dsc_t.__cast__(e.get_param())
     # If the cells are drawn...
     if dsc.part == lv.PART.ITEMS:
         chk = obj.has_cell_ctrl(dsc.id, 0, lv.table.CELL_CTRL.CUSTOM_1)
@@ -40,7 +40,7 @@ def draw_event_cb(e):
         lv.draw_rect(sw_area, dsc.clip_area, rect_dsc)
 
 def change_event_cb(e):
-    obj = lv.table.__cast__(e.get_target())
+    obj = e.get_target()
     row = lv.C_Pointer()
     col = lv.C_Pointer()
     table.get_selected_cell(row, col)

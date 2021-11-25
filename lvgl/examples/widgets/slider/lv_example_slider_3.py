@@ -1,6 +1,6 @@
 def slider_event_cb(e):
     code = e.get_code()
-    obj = lv.slider.__cast__(e.get_target())
+    obj = e.get_target()
 
     # Provide some extra space for the value
     if code == lv.EVENT.REFR_EXT_DRAW_SIZE:
@@ -8,7 +8,7 @@ def slider_event_cb(e):
         
     elif code == lv.EVENT.DRAW_PART_END:
         # print("DRAW_PART_END")
-        dsc = lv.obj_draw_part_dsc_t.cast(e.get_param())
+        dsc = lv.obj_draw_part_dsc_t.__cast__(e.get_param())
         # print(dsc)
         if dsc.part == lv.PART.INDICATOR:
             label_text = "{:d} - {:d}".format(obj.get_left_value(),slider.get_value())

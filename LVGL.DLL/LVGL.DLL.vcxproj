@@ -137,7 +137,6 @@
     <ClCompile Include="..\lv_demos\src\lv_demo_widgets\assets\img_clothes.c" />
     <ClCompile Include="..\lv_demos\src\lv_demo_widgets\assets\img_demo_widgets_avatar.c" />
     <ClCompile Include="..\lv_demos\src\lv_demo_widgets\assets\img_lvgl_logo.c" />
-    <ClCompile Include="..\lv_demos\src\lv_demo_widgets\assets\mouse_cursor_icon.c" />
     <ClCompile Include="..\lv_demos\src\lv_demo_widgets\lv_demo_widgets.c" />
     <ClCompile Include="LVGL.DLL.c" />
   </ItemGroup>

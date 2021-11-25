@@ -14,14 +14,6 @@
  *********************/
 #define MY_CLASS &lv_led_class
 
-#ifndef LV_LED_BRIGHT_MIN
-# define LV_LED_BRIGHT_MIN 80
-#endif
-
-#ifndef LV_LED_BRIGHT_MAX
-# define LV_LED_BRIGHT_MAX 255
-#endif
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -91,10 +83,7 @@ void lv_led_set_brightness(lv_obj_t * obj, uint8_t bright)
     lv_led_t * led = (lv_led_t *)obj;
     if(led->bright == bright) return;
 
-    if(bright <= LV_LED_BRIGHT_MIN) bright = LV_LED_BRIGHT_MIN;
-    if(bright >= LV_LED_BRIGHT_MAX) bright = LV_LED_BRIGHT_MAX;
-
-    led->bright = bright;
+    led->bright = LV_CLAMP(LV_LED_BRIGHT_MIN, bright, LV_LED_BRIGHT_MAX);
 
     /*Invalidate the object there fore it will be redrawn*/
     lv_obj_invalidate(obj);
@@ -203,15 +192,17 @@ static void lv_led_event(const lv_obj_class_t * class_p, lv_event_t * e)
 
         const lv_area_t * clip_area = lv_event_get_param(e);
 
-        lv_obj_draw_part_dsc_t  part_dsc;
-        lv_obj_draw_dsc_init(&part_dsc, clip_area);
-        part_dsc.draw_area = &obj->coords;
-        part_dsc.rect_dsc = &rect_dsc;
-        part_dsc.part = LV_PART_MAIN;
+        lv_obj_draw_part_dsc_t  part_draw_dsc;
+        lv_obj_draw_dsc_init(&part_draw_dsc, clip_area);
+        part_draw_dsc.draw_area = &obj->coords;
+        part_draw_dsc.class_p = MY_CLASS;
+        part_draw_dsc.type = LV_LED_DRAW_PART_RECTANGLE;
+        part_draw_dsc.rect_dsc = &rect_dsc;
+        part_draw_dsc.part = LV_PART_MAIN;
 
-        lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &part_dsc);
+        lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &part_draw_dsc);
         lv_draw_rect(&obj->coords, clip_area, &rect_dsc);
-        lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_dsc);
+        lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_draw_dsc);
     }
 }
 

@@ -175,9 +175,15 @@ void lv_obj_refresh_style(lv_obj_t * obj, lv_style_selector_t selector, lv_style
 
     lv_part_t part = lv_obj_style_get_selector_part(selector);
 
-    if((part == LV_PART_ANY || part == LV_PART_MAIN) && (prop == LV_STYLE_PROP_ANY || (prop & LV_STYLE_PROP_LAYOUT_REFR))) {
-        lv_event_send(obj, LV_EVENT_STYLE_CHANGED, NULL);
-        lv_obj_mark_layout_as_dirty(obj);
+    if(prop & LV_STYLE_PROP_LAYOUT_REFR) {
+        if(part == LV_PART_ANY ||
+           part == LV_PART_MAIN ||
+           lv_obj_get_style_height(obj, 0) == LV_SIZE_CONTENT ||
+           lv_obj_get_style_width(obj, 0) == LV_SIZE_CONTENT)
+        {
+            lv_event_send(obj, LV_EVENT_STYLE_CHANGED, NULL);
+            lv_obj_mark_layout_as_dirty(obj);
+        }
     }
     if((part == LV_PART_ANY || part == LV_PART_MAIN) && (prop == LV_STYLE_PROP_ANY || (prop & LV_STYLE_PROP_PARENT_LAYOUT_REFR))) {
         lv_obj_t * parent = lv_obj_get_parent(obj);
@@ -382,6 +388,8 @@ _lv_style_state_cmp_t _lv_obj_style_state_compare(lv_obj_t * obj, lv_state_t sta
             else if(lv_style_get_prop(style, LV_STYLE_MIN_HEIGHT, &v)) layout_diff = true;
             else if(lv_style_get_prop(style, LV_STYLE_MAX_HEIGHT, &v)) layout_diff = true;
             else if(lv_style_get_prop(style, LV_STYLE_BORDER_WIDTH, &v)) layout_diff = true;
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ANGLE, &v)) layout_diff = true;
+            else if(lv_style_get_prop(style, LV_STYLE_TRANSFORM_ZOOM, &v)) layout_diff = true;
 
             if(layout_diff) {
                 if(part_act == LV_PART_MAIN) {
@@ -447,6 +455,15 @@ lv_state_t lv_obj_style_get_selector_state(lv_style_selector_t selector)
 lv_part_t lv_obj_style_get_selector_part(lv_style_selector_t selector)
 {
     return selector & 0xFF0000;
+}
+
+
+lv_text_align_t lv_obj_calculate_style_text_align(const struct _lv_obj_t * obj, lv_part_t part, const char * txt)
+{
+    lv_text_align_t align = lv_obj_get_style_text_align(obj, part);
+    lv_base_dir_t base_dir = lv_obj_get_style_base_dir(obj, part);
+    lv_bidi_calculate_align(&align, &base_dir, txt);
+    return align;
 }
 
 /**********************
@@ -613,8 +630,9 @@ static void report_style_change_core(void * style, lv_obj_t * obj)
         }
     }
 
-    for(i = 0; i < lv_obj_get_child_cnt(obj); i++) {
-        report_style_change_core(style, lv_obj_get_child(obj, i));
+    uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+    for(i = 0; i < child_cnt; i++) {
+        report_style_change_core(style, obj->spec_attr->children[i]);
     }
 }
 
@@ -626,8 +644,9 @@ static void report_style_change_core(void * style, lv_obj_t * obj)
 static void refresh_children_style(lv_obj_t * obj)
 {
     uint32_t i;
-    for(i = 0; i < lv_obj_get_child_cnt(obj); i++) {
-        lv_obj_t * child = lv_obj_get_child(obj, i);
+    uint32_t child_cnt = lv_obj_get_child_cnt(obj);
+    for(i = 0; i < child_cnt; i++) {
+        lv_obj_t * child = obj->spec_attr->children[i];
         lv_obj_invalidate(child);
         lv_event_send(child, LV_EVENT_STYLE_CHANGED, NULL);
         lv_obj_invalidate(child);

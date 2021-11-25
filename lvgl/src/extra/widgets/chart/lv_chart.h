@@ -116,6 +116,20 @@ typedef struct {
 
 extern const lv_obj_class_t lv_chart_class;
 
+/**
+ * `type` field in `lv_obj_draw_part_dsc_t` if `class_p = lv_chart_class`
+ * Used in `LV_EVENT_DRAW_PART_BEGIN` and `LV_EVENT_DRAW_PART_END`
+ */
+typedef enum {
+    LV_CHART_DRAW_PART_DIV_LINE_INIT,    /**< Used before/after drawn the div lines*/
+    LV_CHART_DRAW_PART_DIV_LINE_HOR,     /**< Used for each horizontal division lines*/
+    LV_CHART_DRAW_PART_DIV_LINE_VER,     /**< Used for each vertical division lines*/
+    LV_CHART_DRAW_PART_LINE_AND_POINT,   /**< Used on line and scatter charts for lines and points*/
+    LV_CHART_DRAW_PART_BAR,              /**< Used on bar charts for the rectangles*/
+    LV_CHART_DRAW_PART_CURSOR,           /**< Used on cursor lines and points*/
+    LV_CHART_DRAW_PART_TICK_LABEL,       /**< Used on tick lines and labels*/
+}lv_chart_draw_part_type_t;
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
@@ -292,7 +306,7 @@ void lv_chart_set_x_start_point(lv_obj_t * obj, lv_chart_series_t * ser, uint16_
  * Get the next series.
  * @param chart     pointer to a chart
  * @param ser      the previous series or NULL to get the first
- * @return          the next series or NULL if thre is no more.
+ * @return          the next series or NULL if there is no more.
  */
 lv_chart_series_t * lv_chart_get_series_next(const lv_obj_t * chart, const lv_chart_series_t * ser);
 
@@ -344,7 +358,7 @@ lv_point_t lv_chart_get_cursor_point(lv_obj_t * chart, lv_chart_cursor_t * curso
  * Initialize all data points of a series with a value
  * @param obj       pointer to chart object
  * @param ser       pointer to a data series on 'chart'
- * @param value     the new value for all points. `LV_CHART_POINT_DEF` can be used to hide the points.
+ * @param value     the new value for all points. `LV_CHART_POINT_NONE` can be used to hide the points.
  */
 void lv_chart_set_all_value(lv_obj_t * obj, lv_chart_series_t * ser, lv_coord_t value);
 

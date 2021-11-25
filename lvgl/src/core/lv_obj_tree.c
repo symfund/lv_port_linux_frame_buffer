@@ -201,8 +201,6 @@ void lv_obj_move_foreground(lv_obj_t * obj)
 
     lv_obj_t * parent = lv_obj_get_parent(obj);
 
-    lv_obj_invalidate(parent);
-
     uint32_t i;
     for(i = lv_obj_get_child_id(obj); i < lv_obj_get_child_cnt(parent) - 1; i++) {
         parent->spec_attr->children[i] = parent->spec_attr->children[i + 1];
@@ -221,8 +219,6 @@ void lv_obj_move_background(lv_obj_t * obj)
 
     lv_obj_t * parent = lv_obj_get_parent(obj);
 
-    lv_obj_invalidate(parent);
-
     int32_t i;
     for(i = lv_obj_get_child_id(obj); i > 0; i--) {
         parent->spec_attr->children[i] = parent->spec_attr->children[i-1];
@@ -233,6 +229,75 @@ void lv_obj_move_background(lv_obj_t * obj)
     lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj);
 
     lv_obj_invalidate(parent);
+}
+
+void lv_obj_swap(lv_obj_t * obj1, lv_obj_t * obj2)
+{
+    LV_ASSERT_OBJ(obj1, MY_CLASS);
+    LV_ASSERT_OBJ(obj2, MY_CLASS);
+
+    lv_obj_t* parent = lv_obj_get_parent(obj1);
+    lv_obj_t* parent2 = lv_obj_get_parent(obj2);
+
+    uint_fast32_t index1 = lv_obj_get_child_id(obj1);
+    uint_fast32_t index2 = lv_obj_get_child_id(obj2);
+
+    parent->spec_attr->children[index1] = obj2;
+    parent2->spec_attr->children[index2] = obj1;
+
+    lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj2);
+    lv_event_send(parent2, LV_EVENT_CHILD_CHANGED, obj1);
+
+    lv_obj_invalidate(parent);
+    if( parent != parent2) {
+        lv_obj_invalidate(parent2);
+    }
+
+    lv_group_swap_obj(obj1, obj2);
+}
+
+void lv_obj_move_up(lv_obj_t * obj)
+{
+    LV_ASSERT_OBJ(obj, MY_CLASS);
+
+    lv_obj_t* parent = lv_obj_get_parent(obj);
+
+    uint_fast32_t index = lv_obj_get_child_id(obj);
+    if (index > 0)
+    {
+        lv_obj_t* obj2 = parent->spec_attr->children[index - 1];
+        parent->spec_attr->children[index - 1] = obj;
+        parent->spec_attr->children[index] = obj2;
+
+        lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj);
+        lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj2);
+
+        lv_obj_invalidate(parent);
+
+        lv_group_swap_obj(obj, obj2);
+    }
+}
+
+void lv_obj_move_down(lv_obj_t* obj)
+{
+    LV_ASSERT_OBJ(obj, MY_CLASS);
+
+    lv_obj_t* parent = lv_obj_get_parent(obj);
+
+    uint_fast32_t index = lv_obj_get_child_id(obj);
+    if (index < lv_obj_get_child_cnt(parent) - 1)
+    {
+        lv_obj_t* obj2 = parent->spec_attr->children[index + 1];
+        parent->spec_attr->children[index + 1] = obj;
+        parent->spec_attr->children[index] = obj2;
+
+        lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj);
+        lv_event_send(parent, LV_EVENT_CHILD_CHANGED, obj2);
+
+        lv_obj_invalidate(parent);
+
+        lv_group_swap_obj(obj, obj2);
+    }
 }
 
 lv_obj_t * lv_obj_get_screen(const lv_obj_t * obj)
@@ -343,13 +408,6 @@ static void obj_del_core(lv_obj_t * obj)
     lv_res_t res = lv_event_send(obj, LV_EVENT_DELETE, NULL);
     if(res == LV_RES_INV) return;
 
-    /*Delete from the group*/
-    lv_group_t * group = lv_obj_get_group(obj);
-    if(group) lv_group_remove_obj(obj);
-
-    /*Remove the animations from this object*/
-    lv_anim_del(obj, NULL);
-
     /*Recursively delete the children*/
     lv_obj_t * child = lv_obj_get_child(obj, 0);
     while(child) {
@@ -357,12 +415,7 @@ static void obj_del_core(lv_obj_t * obj)
         child = lv_obj_get_child(obj, 0);
     }
 
-    _lv_event_mark_deleted(obj);
-
-    /*Remove all style*/
-    lv_obj_enable_style_refresh(false); /*No need to refresh the style because the object will be deleted*/
-    lv_obj_remove_style_all(obj);
-    lv_obj_enable_style_refresh(true);
+    lv_group_t * group = lv_obj_get_group(obj);
 
     /*Reset all input devices if the object to delete is used*/
     lv_indev_t * indev = lv_indev_get_next(NULL);
@@ -381,7 +434,7 @@ static void obj_del_core(lv_obj_t * obj)
     }
 
     /*All children deleted. Now clean up the object specific data*/
-    _lv_obj_destructor(obj);
+    _lv_obj_destruct(obj);
 
     /*Remove the screen for the screen list*/
     if(obj->parent == NULL) {

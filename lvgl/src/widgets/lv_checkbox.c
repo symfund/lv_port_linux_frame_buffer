@@ -206,8 +206,9 @@ static void lv_checkbox_draw(lv_event_t * e)
     const lv_font_t * font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
     lv_coord_t font_h = lv_font_get_line_height(font);
 
-    lv_coord_t bg_topp = lv_obj_get_style_pad_top(obj, LV_PART_MAIN);
-    lv_coord_t bg_leftp = lv_obj_get_style_pad_left(obj, LV_PART_MAIN);
+    lv_coord_t bg_border = lv_obj_get_style_border_width(obj, LV_PART_MAIN);
+    lv_coord_t bg_topp = lv_obj_get_style_pad_top(obj, LV_PART_MAIN) + bg_border;
+    lv_coord_t bg_leftp = lv_obj_get_style_pad_left(obj, LV_PART_MAIN) + bg_border;
     lv_coord_t bg_colp = lv_obj_get_style_pad_column(obj, LV_PART_MAIN);
 
     lv_coord_t marker_leftp = lv_obj_get_style_pad_left(obj, LV_PART_INDICATOR);
@@ -234,15 +235,17 @@ static void lv_checkbox_draw(lv_event_t * e)
     marker_area_transf.y1 -= transf_h;
     marker_area_transf.y2 += transf_h;
 
-    lv_obj_draw_part_dsc_t obj_draw_dsc;
-    lv_obj_draw_dsc_init(&obj_draw_dsc, clip_area);
-    obj_draw_dsc.rect_dsc = &indic_dsc;
-    obj_draw_dsc.draw_area = &marker_area_transf;
-    obj_draw_dsc.part = LV_PART_INDICATOR;
+    lv_obj_draw_part_dsc_t part_draw_dsc;
+    lv_obj_draw_dsc_init(&part_draw_dsc, clip_area);
+    part_draw_dsc.rect_dsc = &indic_dsc;
+    part_draw_dsc.class_p = MY_CLASS;
+    part_draw_dsc.type = LV_CHECKBOX_DRAW_PART_BOX;
+    part_draw_dsc.draw_area = &marker_area_transf;
+    part_draw_dsc.part = LV_PART_INDICATOR;
 
-    lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &obj_draw_dsc);
+    lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &part_draw_dsc);
     lv_draw_rect(&marker_area_transf, clip_area, &indic_dsc);
-    lv_event_send(obj, LV_EVENT_DRAW_PART_END, &obj_draw_dsc);
+    lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_draw_dsc);
 
     lv_coord_t line_space = lv_obj_get_style_text_line_space(obj, LV_PART_MAIN);
     lv_coord_t letter_space = lv_obj_get_style_text_letter_space(obj, LV_PART_MAIN);

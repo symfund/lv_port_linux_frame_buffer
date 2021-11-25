@@ -1,5 +1,5 @@
 #!//opt/bin/lv_micropython -i
-import time
+import utime as time
 import lvgl as lv
 import display_driver
 
@@ -61,7 +61,7 @@ a3.set_repeat_delay(100)
 a3.set_playback_delay(100)
 a3.set_playback_time(2000)
 a3.set_var(indic3)
-a3.set_repeat_count(LV_ANIM_REPEAT_INFINITE)
+a3.set_repeat_count(lv.ANIM_REPEAT.INFINITE)
 a3.set_custom_exec_cb(lambda a,val: set_value(indic3,val))
 lv.anim_t.start(a3)
 

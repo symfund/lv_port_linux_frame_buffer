@@ -184,7 +184,7 @@ static void lv_imgbtn_event(const lv_obj_class_t * class_p, lv_event_t * e)
            imgbtn->img_src_right[state] == NULL)
         {
             lv_img_header_t header;
-            lv_img_decoder_get_info(imgbtn->img_src_mid, &header);
+            lv_img_decoder_get_info(imgbtn->img_src_mid[state], &header);
             p->x = LV_MAX(p->x, header.w);
         }
     }
@@ -260,8 +260,7 @@ static void draw_main(lv_event_t * e)
             coords_part.x2 = coords_part.x1 + header.w - 1;
             coords_part.y2 = coords_part.y1 + header.h - 1;
 
-            for(i = 0; i < clip_center_area.x2 + header.w - 1; i += header.w) {
-
+            for(i = coords_part.x1; i < (lv_coord_t)(clip_center_area.x2 + header.w - 1); i += header.w) {
                 lv_draw_img(&coords_part, &clip_center_area, src, &img_dsc);
                 coords_part.x1 = coords_part.x2 + 1;
                 coords_part.x2 += header.w;

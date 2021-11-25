@@ -1,6 +1,6 @@
 def event_handler(e):
     code = e.get_code()
-    obj = lv.btn.__cast__(e.get_target())
+    obj = e.get_target()
     if code == lv.EVENT.CLICKED:
             print("Clicked: list1." + list1.get_btn_text(obj))
 
@@ -35,6 +35,6 @@ btn_battery.add_event_cb(event_handler,lv.EVENT.ALL, None)
 list1.add_text("Exit")
 btn_apply = list1.add_btn(lv.SYMBOL.OK, "Apply")
 btn_apply.add_event_cb(event_handler,lv.EVENT.ALL, None)
-btn_close = list1.add_btn(LV_SYMBOL.CLOSE, "Close")
+btn_close = list1.add_btn(lv.SYMBOL.CLOSE, "Close")
 btn_close.add_event_cb(event_handler,lv.EVENT.ALL, None)
 

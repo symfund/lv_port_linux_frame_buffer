@@ -247,6 +247,7 @@ void lv_textarea_del_char(lv_obj_t * obj)
 
     /*Delete a character*/
     _lv_txt_cut(label_txt, ta->cursor.pos - 1, 1);
+
     /*Refresh the label*/
     lv_label_set_text(ta->label, label_txt);
     lv_textarea_clear_selection(obj);
@@ -420,6 +421,16 @@ void lv_textarea_set_cursor_pos(lv_obj_t * obj, int32_t pos)
 		lv_obj_scroll_to_y(obj, cur_pos.y - h + font_h, LV_ANIM_ON);
 	}
 
+    /*Check the left*/
+    if(cur_pos.x < lv_obj_get_scroll_left(obj)) {
+        lv_obj_scroll_to_x(obj, cur_pos.x, LV_ANIM_ON);
+    }
+    /*Check the right*/
+    lv_coord_t w = lv_obj_get_content_width(obj);
+    if(cur_pos.x + font_h - lv_obj_get_scroll_left(obj) > w) {
+        lv_obj_scroll_to_x(obj, cur_pos.x - w + font_h, LV_ANIM_ON);
+    }
+
     ta->cursor.valid_x = cur_pos.x;
 
     start_cursor_blink(obj);
@@ -476,20 +487,16 @@ void lv_textarea_set_one_line(lv_obj_t * obj, bool en)
     if(ta->one_line == en) return;
 
     if(en) {
-        const lv_font_t * font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
-        lv_coord_t font_h              = lv_font_get_line_height(font);
-
         ta->one_line = 1;
         lv_obj_set_width(ta->label, LV_SIZE_CONTENT);
 
-        lv_obj_set_content_height(obj, font_h);
+        lv_obj_set_height(obj, LV_SIZE_CONTENT);
         lv_obj_scroll_to(obj, 0, 0, LV_ANIM_OFF);
     }
     else {
         ta->one_line = 0;
         lv_obj_set_width(ta->label, lv_pct(100));
-
-        lv_obj_set_height(obj, LV_DPI_DEF);
+        lv_obj_remove_local_style_prop(obj, LV_STYLE_HEIGHT, LV_PART_MAIN);
         lv_obj_scroll_to(obj, 0, 0, LV_ANIM_OFF);
     }
 }
@@ -1070,11 +1077,7 @@ static void refr_cursor_area(lv_obj_t * obj)
     lv_point_t letter_pos;
     lv_label_get_letter_pos(ta->label, cur_pos, &letter_pos);
 
-    lv_text_align_t align = lv_obj_get_style_text_align(ta->label, LV_PART_MAIN);
-    if(align == LV_TEXT_ALIGN_AUTO) {
-       if(lv_obj_get_style_base_dir(obj, LV_PART_MAIN) == LV_BASE_DIR_RTL) align = LV_TEXT_ALIGN_RIGHT;
-       else align = LV_TEXT_ALIGN_LEFT;
-    }
+    lv_text_align_t align = lv_obj_calculate_style_text_align(ta->label, LV_PART_MAIN, lv_label_get_text(ta->label));
 
     /*If the cursor is out of the text (most right) draw it to the next line*/
     if(letter_pos.x + ta->label->coords.x1 + letter_w > ta->label->coords.x2 && ta->one_line == 0 && align != LV_TEXT_ALIGN_RIGHT) {

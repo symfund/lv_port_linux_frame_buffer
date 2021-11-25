@@ -62,6 +62,14 @@ typedef struct {
 
 extern const lv_obj_class_t lv_btnmatrix_class;
 
+/**
+ * `type` field in `lv_obj_draw_part_dsc_t` if `class_p = lv_btnmatrix_class`
+ * Used in `LV_EVENT_DRAW_PART_BEGIN` and `LV_EVENT_DRAW_PART_END`
+ */
+typedef enum {
+    LV_BTNMATRIX_DRAW_PART_BTN,    /**< The rectangle and label of buttons*/
+}lv_btnmatrix_draw_part_type_t;
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
@@ -151,10 +159,10 @@ void lv_btnmatrix_set_btn_width(lv_obj_t * obj, uint16_t btn_id, uint8_t width);
 
 /**
  * Make the button matrix like a selector widget (only one button may be checked at a time).
- * `LV_BTNMATRIX_CTRL_CHECKABLE` must be enabled on the buttons to be selected useing
+ * `LV_BTNMATRIX_CTRL_CHECKABLE` must be enabled on the buttons to be selected using
  *  `lv_btnmatrix_set_ctrl()` or `lv_btnmatrix_set_btn_ctrl_all()`.
  * @param obj       pointer to a button matrix object
- * @param           en:  whether "one check" mode is enabled
+ * @param en        whether "one check" mode is enabled
  */
 void lv_btnmatrix_set_one_checked(lv_obj_t * obj, bool en);
 
