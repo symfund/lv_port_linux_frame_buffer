@@ -19,6 +19,12 @@ To build the LVGL, just type **make**.
 
 
 # Running on MA35D1 EVAL Boad
+```
+$ ./LVGL_demo &
+```
+
+
+
 ![LVGL Running on MA35D1 EVB Board](docs/images/ma35d1.JPG)
 
 # PC Win32 Simulator
