@@ -19,8 +19,19 @@ To build the LVGL, just type **make**.
 
 
 # Running on MA35D1 EVAL Boad
+
+auto-start LittlevGL upon first boot through Systemd service
+
 ```
-$ ./LVGL_demo &
+[Unit]
+Description=start LittlevGL upon first boot
+
+[Service]
+ExecStart=/usr/sbin/LVGL_demo
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 
