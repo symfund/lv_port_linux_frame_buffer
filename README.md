@@ -1,5 +1,3 @@
-LittleVGL for N9H30 RT-Thread
-https://github.com/wosayttn/LittlevGL2RTT
 
 LittleVGL for N9H30 non-OS Bare Metal
 https://github.com/symfund/N9H30_emWin_NonOS
