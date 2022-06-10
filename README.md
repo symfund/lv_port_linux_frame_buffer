@@ -3,6 +3,16 @@ LittleVGL for N9H30 non-OS Bare Metal
 https://github.com/symfund/N9H30_emWin_NonOS
 
 
+
+# WARNING
+This repository is deprecated! (outdated)
+
+# Note
+Use the latest repository
+https://github.com/symfund/lvgl-port-ma35d1
+
+
+
 # Cross compiling LVGL for framebuffer Linux on MA35D1
 Suppose that the toolchain is installed in **/opt/oecore-x86_64**. 
 Execute the following command to setup build environment.
