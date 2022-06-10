@@ -5,10 +5,10 @@ https://github.com/symfund/N9H30_emWin_NonOS
 
 
 # WARNING
-This repository is deprecated! (outdated)
+This repository is deprecated! (outdated, driver works only for capacitive touchscreen)
 
 # Note
-Use the latest repository
+Use the latest repository to support both resistive and capacitive touchscreen.
 https://github.com/symfund/lvgl-port-ma35d1
 
 
